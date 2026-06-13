@@ -5,7 +5,6 @@ core/llm.py — единый интерфейс ко всем провайдер
 
 import json
 import sys
-from typing import Generator
 
 try:
     from openai import OpenAI, APIConnectionError, AuthenticationError, RateLimitError
