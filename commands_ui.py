@@ -16,9 +16,9 @@ HELP_TEXT = """
 │           Terminal AI — команды             │
 ├──────────────┬──────────────────────────────┤
 │ /help        │ это меню                     │
-│ /chat        │ обычный чат (режим по умолч.)│
 │ /clear       │ очистить историю диалога     │
-│ /context     │ показать текущий контекст    │
+│ /history     │ показать историю сессии      │
+│ /context     │ показать контекст среды      │
 │ /config      │ показать конфиг              │
 │ /provider    │ сменить провайдера           │
 │ /model       │ сменить модель               │
@@ -27,8 +27,8 @@ HELP_TEXT = """
 │ /exit /quit  │ выйти                        │
 └──────────────┴──────────────────────────────┘
 
-Просто пиши запросы на русском (или любом другом).
-Если модель хочет выполнить команду — покажет и спросит разрешения.
+Режим: агент. Каждый запрос — многошаговое выполнение.
+Модель сама читает файлы, выполняет команды, пишет код.
 """
 
 
@@ -52,6 +52,20 @@ def handle_slash_command(cmd: str, llm_client, cfg: dict) -> tuple[bool, bool]:
 
     elif command == "/clear":
         llm_client.clear_history()
+        return True, False
+
+    elif command == "/history":
+        if not llm_client.history:
+            print("[i] История пуста.")
+        else:
+            print(f"\nИстория сессии ({len(llm_client.history)} сообщений):\n")
+            for i, msg in enumerate(llm_client.history, 1):
+                role = "you" if msg["role"] == "user" else "ai"
+                content = msg["content"]
+                # Обрезаем длинные сообщения для отображения
+                if len(content) > 200:
+                    content = content[:200] + "..."
+                print(f"  [{i}] {role}> {content}")
         return True, False
 
     elif command == "/context":
